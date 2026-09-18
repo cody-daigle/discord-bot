@@ -35,10 +35,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
   } catch (error) {
     console.error(error);
     const errorMessage = { content: 'There was an error executing this command.', ephemeral: true };
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp(errorMessage);
-    } else {
-      await interaction.reply(errorMessage);
+    try {
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp(errorMessage);
+      } else {
+        await interaction.reply(errorMessage);
+      }
+    } catch (followUpError) {
+      console.error('Failed to report error to user:', followUpError);
     }
   }
 });

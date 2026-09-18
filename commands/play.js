@@ -9,8 +9,7 @@ import {
   VoiceConnectionStatus,
   StreamType,
 } from '@discordjs/voice';
-import { YouTube } from 'youtube-sr';
-import ytdl from '@distube/ytdl-core';
+import { spawn } from 'node:child_process';
 
 export const data = new SlashCommandBuilder()
   .setName('play')
@@ -18,6 +17,35 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option.setName('song').setDescription('Name of the song to search for').setRequired(true),
   );
+
+function searchYouTube(query) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('yt-dlp', ['--no-playlist', '--dump-json', `ytsearch1:${query}`]);
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (chunk) => (stdout += chunk));
+    proc.stderr.on('data', (chunk) => (stderr += chunk));
+    proc.on('error', reject);
+    proc.on('close', (code) => {
+      const firstLine = stdout.split('\n').find((line) => line.trim());
+      if (code !== 0 || !firstLine) {
+        reject(new Error(stderr.trim() || 'yt-dlp search failed'));
+        return;
+      }
+      try {
+        resolve(JSON.parse(firstLine));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+}
+
+function streamAudio(url) {
+  const proc = spawn('yt-dlp', ['-f', 'bestaudio', '-o', '-', '--no-playlist', '--quiet', '--no-warnings', url]);
+  proc.stderr.on('data', () => {});
+  return proc;
+}
 
 export const execute = async (interaction) => {
   const voiceChannel = interaction.member.voice.channel;
@@ -29,9 +57,13 @@ export const execute = async (interaction) => {
   await interaction.deferReply();
 
   const query = interaction.options.getString('song', true);
-  const video = await YouTube.searchOne(query, 'video').catch(() => null);
-  if (!video) {
-    await interaction.editReply(`No YouTube results found for "${query}".`);
+
+  let video;
+  try {
+    video = await searchYouTube(query);
+  } catch (error) {
+    console.error('YouTube search failed:', error);
+    await interaction.editReply(`Search failed for "${query}": ${error.message}`);
     return;
   }
 
@@ -54,15 +86,27 @@ export const execute = async (interaction) => {
   }
 
   const player = createAudioPlayer();
-  const stream = ytdl(video.url, { filter: 'audioonly', highWaterMark: 1 << 25 });
-  const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
+  const ytdlpProcess = streamAudio(video.webpage_url);
+  ytdlpProcess.on('error', (error) => {
+    console.error('yt-dlp process error:', error);
+  });
+
+  const resource = createAudioResource(ytdlpProcess.stdout, { inputType: StreamType.Arbitrary });
+
+  const leaveVoiceChannel = () => {
+    ytdlpProcess.kill();
+    if (connection.state.status !== VoiceConnectionStatus.Destroyed) {
+      connection.destroy();
+    }
+  };
 
   player.on('error', (error) => {
     console.error(error);
-    connection.destroy();
+    leaveVoiceChannel();
+    interaction.editReply(`Playback failed: ${error.message}`).catch(() => {});
   });
   player.on(AudioPlayerStatus.Idle, () => {
-    connection.destroy();
+    leaveVoiceChannel();
   });
 
   connection.subscribe(player);
