@@ -48,11 +48,15 @@ export const execute = async (interaction) => {
   });
 
   collector.on('collect', async (selectInteraction) => {
-    const section = SECTIONS.find((s) => s.id === selectInteraction.values[0]);
-    await selectInteraction.update({
-      embeds: [section.embed],
-      components: buildComponents(section.id),
-    });
+    try {
+      const section = SECTIONS.find((s) => s.id === selectInteraction.values[0]);
+      await selectInteraction.update({
+        embeds: [section.embed],
+        components: buildComponents(section.id),
+      });
+    } catch (error) {
+      console.error('brickquest dropdown update failed:', error);
+    }
   });
 
   collector.on('end', () => {
