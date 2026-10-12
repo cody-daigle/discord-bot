@@ -9,6 +9,7 @@ A personal Discord bot with music playback, voice clip recording, and a lightwei
 - **Voice clips** — record a short clip of someone talking and replay it later
 - **Artifakt: Brickquest rulebook** — browse the full rulebook in Discord via an interactive dropdown
 - **Artifakt Lite** — character sheets, dice rolling, and a Builder-run monster tracker for playing the game digitally
+- **Story proofreading** — check a short story for spelling and grammar errors before posting it to a site like WebNovel
 
 ## Commands
 
@@ -55,6 +56,11 @@ A personal Discord bot with music playback, voice clip recording, and a lightwei
 | `/monster hp name:<> action:<> amount:<>` | *(Builder only)* Adjust a monster's Heart |
 | `/monster remove name:<>` | *(Builder only)* Stop tracking a monster |
 | `/monster list` | List all currently tracked monsters |
+
+### Story proofreading
+| Command | Description |
+| --- | --- |
+| `/proofread` | Opens a form to paste a story (up to 4,000 characters per run). Replies privately with a list of spelling, grammar, and punctuation fixes plus a corrected copy as a `.txt` file. Uses the free [LanguageTool](https://languagetool.org/) API, so no key is needed |
 
 ## Setup
 
