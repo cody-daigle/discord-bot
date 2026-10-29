@@ -1,14 +1,12 @@
 # Discord Bot
 
-A personal Discord bot with music playback, voice clip recording, and a lightweight digital companion for the *Artifakt: Brickquest* tabletop game.
+A personal Discord bot with music playback, voice clip recording, and a story proofreader.
 
 ## Features
 
 - **General** — ping, a greeting, and rock-paper-scissors
 - **Music** — search and play YouTube audio in a voice channel, with a queue, skip, and stop
 - **Voice clips** — record a short clip of someone talking and replay it later
-- **Artifakt: Brickquest rulebook** — browse the full rulebook in Discord via an interactive dropdown
-- **Artifakt Lite** — character sheets, dice rolling, and a Builder-run monster tracker for playing the game digitally
 - **Story proofreading** — check a short story for spelling and grammar errors before posting it to a site like WebNovel
 
 ## Commands
@@ -36,26 +34,6 @@ A personal Discord bot with music playback, voice clip recording, and a lightwei
 | `/record name:<clip> [user]` | Record a short clip of yourself (or someone else) talking. Starts capturing immediately and stops automatically after a pause |
 | `/clip name:<clip>` | Play back a saved clip (autocompletes existing names) |
 | `/deleteclip name:<clip>` | Delete a clip — only the person who recorded it, or a moderator (Manage Messages), can delete it |
-
-### Artifakt: Brickquest rulebook
-| Command | Description |
-| --- | --- |
-| `/brickquest` | Browse the rulebook via a dropdown menu, with a link to the full interactive rulebook |
-
-### Artifakt Lite (digital character tracker)
-| Command | Description |
-| --- | --- |
-| `/character create name:<> class:<>` | Create (or replace) your character; stats auto-fill from your class |
-| `/character sheet [user]` | View a character's Heart, Defense, Attack die, Trick, and Skill |
-| `/heart action:<add\|remove\|set> amount:<> [user]` | Adjust Heart (HP). Adjusting someone else's requires Manage Messages |
-| `/roll [sides]` | Roll a die (d4/d6/d8/d10/d20, defaults to d20) |
-| `/damage` | Roll your class's own damage die |
-| `/attack target:<monster>` | Roll to hit a tracked monster; auto-rolls damage and depletes its Heart on a hit |
-| `/monster spawn name:<> [template] [heart] [defense] [damage]` | *(Builder only)* Start tracking a monster, from a rulebook template or custom stats |
-| `/monster sheet name:<>` | View a tracked monster's stats |
-| `/monster hp name:<> action:<> amount:<>` | *(Builder only)* Adjust a monster's Heart |
-| `/monster remove name:<>` | *(Builder only)* Stop tracking a monster |
-| `/monster list` | List all currently tracked monsters |
 
 ### Story proofreading
 | Command | Description |
@@ -101,7 +79,5 @@ npm start        # starts the bot
 The bot stores runtime data locally, gitignored:
 
 - `clips/<guildId>/` — recorded voice clips (`.ogg`) and a `_metadata.json` tracking who recorded each one
-- `data/characters/<guildId>.json` — player characters
-- `data/monsters/<guildId>.json` — tracked monster encounters
 
 None of this is committed to the repository, so it won't carry over if you move the bot to a different machine or clone a fresh copy.
